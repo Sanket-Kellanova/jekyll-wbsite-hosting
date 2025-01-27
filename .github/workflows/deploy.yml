@@ -1,0 +1,30 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main  # Trigger this action on push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
+    - name: Upload files to EC2
+      run: |
+        scp -r ./ your-ec2-user@your-ec2-public-ip:/path/to/remote/directory
+
+    - name: Run Jekyll on EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no your-ec2-user@your-ec2-public-ip << 'EOF'
+          cd /path/to/remote/directory
+          jekyll build
+        EOF
