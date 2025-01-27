@@ -5,7 +5,7 @@ on:
     branches:
       - main  # Trigger this action on push to the main branch
 env:
-  - main
+  ENV: main
 
 jobs:
   deploy:
