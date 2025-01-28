@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main  # Trigger this action on push to the main branch
+
 env:
   ENV: main
 
@@ -32,5 +33,12 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no ec2-user@54.174.124.249 << 'EOF'
           cd /home/ec2-user/my-static-site
-          bundle exec jekyll serve --host 0.0.0.0 --port 4000
+          # Start Jekyll and monitor its output
+          bundle exec jekyll serve --host 0.0.0.0 --port 4000 2>&1 | tee jekyll_output.log
+          
+          # Check if the specific string is in the output
+          if grep -q "Server running... press ctrl-c to stop." jekyll_output.log; then
+            echo "Server is running. Exiting the script to prevent being stuck."
+            exit 0
+          fi
         EOF
